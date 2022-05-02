@@ -1,0 +1,36 @@
+/* Targeting Top 1000 spenders in Sprocket Central*/
+
+-- Looking at TOP 1000 spenders
+SELECT TOP 1000 customer_id, SUM(list_price) as total_spending
+FROM master.dbo.KPMG_customer_transaction
+GROUP BY customer_id
+ORDER BY total_spending DESC
+
+-- Using CTE for the top spenders
+WITH top1000spender
+AS
+(
+SELECT TOP 1000 customer_id, SUM(list_price) as total_spending
+FROM master.dbo.KPMG_customer_transaction
+GROUP BY customer_id
+ORDER BY total_spending DESC
+)
+SELECT *
+FROM top1000spender
+WHERE total_spending > 10000;
+
+-- Join 2 table >> to add name to transaction table
+WITH Topdemo
+AS
+(
+SELECT top1000.customer_id,top1000.total_spending, custdemo.first_name, custdemo.last_name,custdemo.gender,
+      custdemo.past_3_years_bike_related_purchases,custdemo.DOB,custdemo.age,custdemo.job_title,custdemo.job_industry_category,
+      custdemo.wealth_segment,custdemo.deceased_indicator,custdemo.owns_car,custdemo.tenure
+FROM master.dbo.KPMG_top1000spender AS top1000
+INNER JOIN master.dbo.KPMG_customer_demographic AS custdemo
+ ON top1000.customer_id = custdemo.customer_id
+)
+SELECT *
+FROM Topdemo
+LEFT JOIN master.dbo.KPMG_customer_address as address
+    ON Topdemo.customer_id = address.customer_id

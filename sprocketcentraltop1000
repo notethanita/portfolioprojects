@@ -34,3 +34,49 @@ SELECT *
 FROM Topdemo
 LEFT JOIN master.dbo.KPMG_customer_address as address
     ON Topdemo.customer_id = address.customer_id
+
+
+/* TOP PROFIT CUSTOMERS*/
+
+-- Looking at TOP 1000 profit customer_id
+SELECT TOP 1000 customer_id, SUM(Profit) as total_profit
+FROM master.dbo.KPMG_customer_transaction_profit
+GROUP BY customer_id
+ORDER BY total_profit DESC
+
+-- Using CTE for the top profit customer_id
+WITH top1000profitspender
+AS
+(
+SELECT TOP 1000 customer_id, SUM(profit) as total_profit
+FROM master.dbo.KPMG_customer_transaction_profit
+GROUP BY customer_id
+ORDER BY total_profit DESC
+)
+SELECT *
+FROM top1000profitspender
+WHERE total_profit > 10000;
+
+-- Join 2 table >> to add name to transaction table
+WITH Topprofitdemo
+AS
+(
+SELECT topprofit.customer_id,topprofit.total_profit, custdemo.first_name, custdemo.last_name,custdemo.gender,
+      custdemo.past_3_years_bike_related_purchases,custdemo.DOB,custdemo.age,custdemo.job_title,custdemo.job_industry_category,
+      custdemo.wealth_segment,custdemo.deceased_indicator,custdemo.owns_car,custdemo.tenure
+FROM master.dbo.KPMG_topprofitcustomer AS topprofit
+INNER JOIN master.dbo.KPMG_customer_demographic AS custdemo
+ ON topprofit.customer_id = custdemo.customer_id
+)
+SELECT *
+FROM Topprofitdemo
+LEFT JOIN master.dbo.KPMG_customer_address as address
+    ON Topprofitdemo.customer_id = address.customer_id
+
+--- JOIN Top Profit Demographic and transaction
+SELECT *
+FROM master.dbo.topprofitdemog as topdemog
+JOIN master.dbo.KPMG_customer_transaction_profit as purchase
+    ON topdemog.customer_id = purchase.customer_id
+ORDER BY topdemog.customer_id
+

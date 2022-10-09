@@ -1,0 +1,63 @@
+/* SQL Basic with BigQuery */
+
+# QUERYING DATA FROM A TABLE
+
+-- QUERY ALL ROWS AND COLUMS
+SELECT *
+FROM `bigquery-public-data.chicago_crime.crime` LIMIT 100
+
+-- QUERY SPECIFIC COLUMNS
+SELECT case_number, location_description
+FROM `bigquery-public-data.chicago_crime.crime`
+
+-- DISTINCT -- TO TURN NOT REPEATED ROWS
+SELECT DISTINCT location_description
+FROM `bigquery-public-data.chicago_crime.crime`
+WHERE location_description LIKE 'A%';
+
+-- SORT IN ASCENDING OR DESCENDING ORDER
+SELECT arrest, year
+FROM `bigquery-public-data.chicago_crime.crime`
+ORDER BY YEAR DESC 
+
+--- LIMIT = KEEP next n rows // OFFSET = TAKE OFF first n row
+SELECT date, description  
+FROM `bigquery-public-data.chicago_crime.crime`
+ORDER BY date DESC 
+LIMIT 5 OFFSET 3
+
+--- GROUP ROWS USING AN AGGREGATE FUNCTION
+SELECT location_description, AVG(beat) as avg_beat, MAX(beat) as max_beat, MIN(beat) as min_beat
+FROM `bigquery-public-data.chicago_crime.crime`
+GROUP BY location_description
+ORDER BY max_beat
+
+-- FILTER GROUPS USING --HAVING--CLASE
+SELECT location_description, AVG(beat) as avg_beat, MAX(beat) as max_beat, MIN(beat) as min_beat
+FROM `bigquery-public-data.chicago_crime.crime`
+GROUP BY location_description
+HAVING location_description = 'CHA BREEZEWAY'
+
+# QUERYING FROM MULTIPLE TABLES
+
+-- INNER JOIN T1 and T2
+-- LEFT JOIN T1 and T2
+
+# USING SQL OPERATIONS
+
+-- UNION ALL -- COMBINE ROWS FROM TWO QUERIES
+SELECT location_description, beat
+FROM `bigquery-public-data.chicago_crime.crime`
+UNION ALL
+SELECT description, year 
+FROM `bigquery-public-data.austin_crime.crime`
+
+-- INTERSECT -- RETURN THE INTERSECTION OF TWO QUERIES
+SELECT location_description, beat
+FROM `bigquery-public-data.chicago_crime.crime`
+INTERSECT
+SELECT description, year 
+FROM `bigquery-public-data.austin_crime.crime`
+
+
+
